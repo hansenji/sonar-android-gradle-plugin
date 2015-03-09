@@ -1,10 +1,9 @@
 # sonar-android-gradle-plugin
 SonarQube Plugin that imports the Android Lint Report into Sonar database.
 
-This currently only imports issues that on .java and .xml files.
+This currently only imports issues that are detected in .java and .xml files.
 
 The lint-rules-gen project gets the current rules from Android Lint nad creates Sonar rules.xml and profile files that are required for the plugin
-
 
 License
 -------
