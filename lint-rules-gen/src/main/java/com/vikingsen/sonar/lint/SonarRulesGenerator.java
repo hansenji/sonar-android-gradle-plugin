@@ -168,13 +168,13 @@ public class SonarRulesGenerator {
             case FATAL:
                 return SonarSeverity.BLOCKER;
             case ERROR:
-                if (issue.getPriority() <= ERROR_CRITICAL_PRIORITY) {
+                if (issue.getPriority() >= ERROR_CRITICAL_PRIORITY) {
                     return SonarSeverity.CRITICAL;
                 } else {
                     return SonarSeverity.MAJOR;
                 }
             case WARNING:
-                if (issue.getPriority() <= WARNING_MAJOR_PRIORITY) {
+                if (issue.getPriority() >= WARNING_MAJOR_PRIORITY) {
                     return SonarSeverity.MAJOR;
                 } else {
                     return SonarSeverity.MINOR;
