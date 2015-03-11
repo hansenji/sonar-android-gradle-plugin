@@ -1,6 +1,5 @@
 package com.vikingsen.sonar;
 
-import com.vikingsen.sonar.language.AndroidResources;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
@@ -25,9 +24,6 @@ public final class AndroidLintPlugin extends SonarPlugin {
     // This is where you're going to declare all your Sonar extensions
     public List getExtensions() {
         return Arrays.asList(
-                // Language
-                AndroidResources.class,
-
                 // Properties
                 PropertyDefinition.builder(ANDROID_LINT_REPORT)
                         .defaultValue(String.valueOf(ANDROID_LINT_REPORT_DEFAULT))
@@ -50,12 +46,10 @@ public final class AndroidLintPlugin extends SonarPlugin {
                         .build(),
 
                 // Rules
-                AndroidLintResourcesRulesDefinition.class,
-                AndroidLintJavaRulesDefinition.class,
+                AndroidLintRulesDefinition.class,
 
                 // Profiles
-                AndroidLintJavaProfile.class,
-                AndroidLintResourcesProfile.class,
+                AndroidLintProfile.class,
 
                 // Sensors
                 AndroidLintSensor.class

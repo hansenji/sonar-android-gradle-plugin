@@ -8,13 +8,13 @@ import org.sonar.api.utils.ValidationMessages;
 
 import java.io.InputStreamReader;
 
-public class AndroidLintJavaProfile extends ProfileDefinition {
+public class AndroidLintProfile extends ProfileDefinition {
 
-    private static final String XML_PATH = "/com/vikingsen/sonar/plugins/lint/java/profile.xml";
+    private static final String XML_PATH = "/com/vikingsen/sonar/plugins/lint/profile.xml";
 
     private final XMLProfileParser parser;
 
-    public AndroidLintJavaProfile(XMLProfileParser parser) {
+    public AndroidLintProfile(XMLProfileParser parser) {
         this.parser = parser;
     }
 

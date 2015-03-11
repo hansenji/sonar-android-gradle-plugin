@@ -24,9 +24,6 @@ import java.io.File;
 
 public class AndroidLintSensor implements Sensor {
 
-    private static final String JAVA_SUFFIX = ".java";
-    private static final String CLASS_SUFFIX = ".class";
-
     private final FileSystem fileSystem;
     private final FilePredicates predicates;
     private final ResourcePerspectives perspectives;
@@ -78,21 +75,15 @@ public class AndroidLintSensor implements Sensor {
     }
 
     private void processIssue(SensorContext sensorContext, DtoIssue dtoIssue) {
-        for (DtoLocation dtoLocation : dtoIssue.getLocations()) {
-            boolean java = dtoLocation.getFile().endsWith(JAVA_SUFFIX) || dtoLocation.getFile().endsWith(CLASS_SUFFIX);
-            ActiveRule rule = getRule(dtoIssue, java);
-            if (rule != null) {
-                log.debug("Processing Issue: {}{}", dtoIssue.getId(), java ? JAVA_SUFFIX : "");
+        ActiveRule rule = rulesProfile.getActiveRule(AndroidLintRulesDefinition.KEY, dtoIssue.getId());
+        if (rule != null) {
+            log.debug("Processing Issue: {}", dtoIssue.getId());
+            for (DtoLocation dtoLocation : dtoIssue.getLocations()) {
                 processIssueForLocation(rule, dtoIssue, dtoLocation);
-            } else {
-                log.debug("Unable to find rule for {}{}", dtoIssue.getId(), java ? JAVA_SUFFIX : "");
             }
+        } else {
+            log.debug("Unable to find rule for {}", dtoIssue.getId());
         }
-    }
-
-    private ActiveRule getRule(DtoIssue dtoIssue, boolean java) {
-        return rulesProfile.getActiveRule(java ? AndroidLintJavaRulesDefinition.KEY : AndroidLintResourcesRulesDefinition.KEY,
-                dtoIssue.getId() + (java ? JAVA_SUFFIX : ""));
     }
 
     private void processIssueForLocation(ActiveRule rule, DtoIssue dtoIssue, DtoLocation dtoLocation) {

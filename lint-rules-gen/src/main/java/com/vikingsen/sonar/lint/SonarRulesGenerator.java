@@ -4,10 +4,8 @@ import com.android.tools.lint.checks.BuiltinIssueRegistry;
 import com.android.tools.lint.client.api.IssueRegistry;
 import com.android.tools.lint.detector.api.Category;
 import com.android.tools.lint.detector.api.Issue;
-import com.android.tools.lint.detector.api.Scope;
 import com.android.tools.lint.detector.api.TextFormat;
-import com.vikingsen.sonar.AndroidLintJavaRulesDefinition;
-import com.vikingsen.sonar.AndroidLintResourcesRulesDefinition;
+import com.vikingsen.sonar.AndroidLintRulesDefinition;
 import com.vikingsen.sonar.lint.dto.DtoProfile;
 import com.vikingsen.sonar.lint.dto.DtoRule;
 import com.vikingsen.sonar.lint.dto.DtoRules;
@@ -28,62 +26,42 @@ public class SonarRulesGenerator {
     private static final int ERROR_CRITICAL_PRIORITY = 7;
     private static final int WARNING_MAJOR_PRIORITY = 7;
 
-    private static final String RESOURCES_RULES_REPOSITORY_KEY = AndroidLintResourcesRulesDefinition.KEY;
-    private static final String RESOURCES_PROFILE_NAME = "Android Lint Resources";
-    private static final String RESOURCES_REPOSITORY_LANGUAGE = AndroidLintResourcesRulesDefinition.LANGUAGE;
+    private static final String RULES_REPOSITORY_KEY = AndroidLintRulesDefinition.KEY;
+    private static final String PROFILE_NAME = "Android Lint";
+    private static final String REPOSITORY_LANGUAGE = AndroidLintRulesDefinition.LANGUAGE;
 
-    private static final String JAVA_RULES_REPOSITORY_KEY = AndroidLintJavaRulesDefinition.KEY;
-    private static final String JAVA_PROFILE_NAME = "Android Lint Java";
-    private static final String JAVA_REPOSITORY_LANGUAGE = AndroidLintJavaRulesDefinition.LANGUAGE;
+    private static final File PROFILE_FILE = new File("out", "profile.xml");
+    private static final File RULES_FILE = new File("out", "rules.xml");
 
-    private static final String JAVA_SUFFIX = ".java";
-
-    private static final File BASE_OUT_DIRECTORY = new File("out");
-    private static final File RESOURCES_OUT_DIRECTORY = new File(BASE_OUT_DIRECTORY, "resources");
-    private static final File JAVA_OUT_DIRECTORY = new File(BASE_OUT_DIRECTORY, "java");
-    private static final String PROFILE_FILE = "profile.xml";
-    private static final String RULES_FILE = "rules.xml";
-
-    private DtoRules javaRules = new DtoRules();
-    private DtoRules resRules = new DtoRules();
-    private DtoProfile javaProfile = new DtoProfile();
-    private DtoProfile resProfile = new DtoProfile();
+    private DtoRules rules = new DtoRules();
+    private DtoProfile profile = new DtoProfile();
 
     private Logger log = LoggerFactory.getLogger(SonarRulesGenerator.class);
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void genRules() {
-        javaProfile.setName(JAVA_PROFILE_NAME);
-        javaProfile.setLanguage(JAVA_REPOSITORY_LANGUAGE);
-        resProfile.setName(RESOURCES_PROFILE_NAME);
-        resProfile.setLanguage(RESOURCES_REPOSITORY_LANGUAGE);
+        profile.setName(PROFILE_NAME);
+        profile.setLanguage(REPOSITORY_LANGUAGE);
 
         List<Issue> issues = getIssues();
-        for(Issue issue : issues) {
+        for (Issue issue : issues) {
             processIssue(issue);
         }
 
         // Output files
         Serializer serializer = new Persister();
-        File resourceRulesRepoFile = new File(RESOURCES_OUT_DIRECTORY, RULES_FILE);
-        //noinspection ResultOfMethodCallIgnored
-        resourceRulesRepoFile.getParentFile().mkdirs();
-        File javaRulesRepoFile = new File(JAVA_OUT_DIRECTORY, RULES_FILE);
-        //noinspection ResultOfMethodCallIgnored
-        javaRulesRepoFile.getParentFile().mkdirs();
-        File resourceProfileFile = new File(RESOURCES_OUT_DIRECTORY, PROFILE_FILE);
-        //noinspection ResultOfMethodCallIgnored
-        resourceProfileFile.getParentFile().mkdirs();
-        File javaProfileFile = new File(JAVA_OUT_DIRECTORY, PROFILE_FILE);
-        //noinspection ResultOfMethodCallIgnored
-        javaProfileFile.getParentFile().mkdirs();
+        RULES_FILE.getParentFile().mkdirs();
+        PROFILE_FILE.getParentFile().mkdirs();
         try {
-            serializer.write(resRules, resourceRulesRepoFile);
-            serializer.write(javaRules, javaRulesRepoFile);
-            serializer.write(resProfile, resourceProfileFile);
-            serializer.write(javaProfile, javaProfileFile);
+            serializer.write(rules, RULES_FILE);
+            serializer.write(profile, PROFILE_FILE);
         } catch (Exception e) {
             log.error("Failed to write files", e);
         }
+
+        // Print Stats
+        log.info("{} total rules", rules.getRules().size());
+        log.info("{} rule(s) in profile", profile.getRules().size());
     }
 
     private List<Issue> getIssues() {
@@ -109,51 +87,16 @@ public class SonarRulesGenerator {
 
 
     private void processIssue(Issue issue) {
-        boolean addToJavaRules = false;
-        boolean addToResRules = false;
-        for (Scope scope : issue.getImplementation().getScope()) {
-            if (isJava(scope)) {
-                addToJavaRules = true;
-            } else {
-                addToResRules = true;
-            }
-            if (addToJavaRules && addToResRules) {
-                break;
-            }
-        }
-
-        if (addToJavaRules) {
-            DtoRule dtoRule = genRule(issue, true);
-            javaRules.addRule(dtoRule);
-            if (issue.isEnabledByDefault()) {
-                javaProfile.addRule(JAVA_RULES_REPOSITORY_KEY, dtoRule.getKey());
-            }
-        }
-        if (addToResRules) {
-            DtoRule dtoRule = genRule(issue, false);
-            resRules.addRule(dtoRule);
-            if (issue.isEnabledByDefault()) {
-                resProfile.addRule(RESOURCES_RULES_REPOSITORY_KEY, dtoRule.getKey());
-            }
-        }
-    }
-
-    private DtoRule genRule(Issue issue, boolean forJava) {
         DtoRule dtoRule = new DtoRule();
-        dtoRule.setKey(issue.getId() + (forJava ? JAVA_SUFFIX : ""));
-        dtoRule.setName(issue.getId());
-        dtoRule.setDescription(wrapInCData(issue.getBriefDescription(TextFormat.HTML), issue.getExplanation(TextFormat.HTML)));
+        dtoRule.setKey(issue.getId());
+        dtoRule.setName(issue.getBriefDescription(TextFormat.TEXT));
+        dtoRule.setDescription(issue.getExplanation(TextFormat.HTML));
         dtoRule.setSeverity(getSeverity(issue));
         addTags(dtoRule, issue.getCategory());
-        return dtoRule;
-    }
-
-    private String wrapInCData(String... htmlStrings) {
-        StringBuilder builder = new StringBuilder();
-        for (String html : htmlStrings) {
-            builder.append(html).append("<br/>");
+        rules.addRule(dtoRule);
+        if (issue.isEnabledByDefault()) {
+            profile.addRule(RULES_REPOSITORY_KEY, dtoRule.getKey());
         }
-        return  builder.toString();
     }
 
     private void addTags(DtoRule dtoRule, @Nonnull Category category) {
@@ -184,17 +127,5 @@ public class SonarRulesGenerator {
             default:
                 return SonarSeverity.INFO;
         }
-    }
-
-    private boolean isJava(Scope scope) {
-        switch (scope) {
-            case JAVA_FILE:
-            case ALL_JAVA_FILES:
-            case CLASS_FILE:
-            case ALL_CLASS_FILES:
-            case JAVA_LIBRARIES:
-                return true;
-        }
-        return false;
     }
 }
