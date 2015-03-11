@@ -18,7 +18,6 @@ import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
 
 import java.io.File;
@@ -84,7 +83,7 @@ public class AndroidLintSensor implements Sensor {
             ActiveRule rule = getRule(dtoIssue, java);
             if (rule != null) {
                 log.debug("Processing Issue: {}{}", dtoIssue.getId(), java ? JAVA_SUFFIX : "");
-                processIssueForLocation(sensorContext, rule, dtoIssue, dtoLocation);
+                processIssueForLocation(rule, dtoIssue, dtoLocation);
             } else {
                 log.debug("Unable to find rule for {}{}", dtoIssue.getId(), java ? JAVA_SUFFIX : "");
             }
@@ -96,11 +95,10 @@ public class AndroidLintSensor implements Sensor {
                 dtoIssue.getId() + (java ? JAVA_SUFFIX : ""));
     }
 
-    private void processIssueForLocation(SensorContext sensorContext, ActiveRule rule, DtoIssue dtoIssue, DtoLocation dtoLocation) {
+    private void processIssueForLocation(ActiveRule rule, DtoIssue dtoIssue, DtoLocation dtoLocation) {
         InputFile inputFile = fileSystem.inputFile(predicates.hasAbsolutePath(dtoLocation.getFile()));
         if (inputFile != null) {
-            Resource resource = sensorContext.getResource(inputFile);
-            Issuable issuable = perspectives.as(Issuable.class, resource);
+            Issuable issuable = perspectives.as(Issuable.class, inputFile);
             if (issuable != null) {
                 Issue issue = issuable.newIssueBuilder()
                         .ruleKey(rule.getRule().ruleKey())
