@@ -33,8 +33,5 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
-lint-rules-gen/out
-/out/java/profile.xml
-/out/java/rules.xml
-/out/resources/profile.xml
-/out/resources/rules.xml
+# Output directory
+/out

@@ -24,12 +24,12 @@
         <slf4j.version>1.7.10</slf4j.version>
     </properties>
 
-    <!--<scm>-->
-        <!--<url>http://github.com/hansenji/pocketknife/</url>-->
-        <!--<connection>scm:git:git://github.com/hansenji/pocketknife.git</connection>-->
-        <!--<developerConnection>scm:git:ssh://git@github.com/hansenji/pocketknife.git</developerConnection>-->
-        <!--<tag>HEAD</tag>-->
-    <!--</scm>-->
+    <scm>
+        <url>http://github.com/hansenji/sonar-android-lint-plugin/</url>
+        <connection>scm:git:git://github.com/hansenji/sonar-android-lint-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/hansenji/sonar-android-lint-plugin.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
     <licenses>
         <license>
