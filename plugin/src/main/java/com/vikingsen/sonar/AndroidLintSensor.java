@@ -21,6 +21,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 
 import java.io.File;
+import java.io.IOException;
 
 public class AndroidLintSensor implements Sensor {
 
@@ -37,18 +38,8 @@ public class AndroidLintSensor implements Sensor {
         this.predicates = fileSystem.predicates();
         this.perspectives = perspectives;
         this.rulesProfile = rulesProfile;
-        lintXml = getLintXmlFile(settings);
+        lintXml = getFile(settings.getString(AndroidLintPlugin.ANDROID_LINT_REPORT));
         log.debug("Looking for Lint Report at {}", lintXml.getPath());
-    }
-
-    private File getLintXmlFile(Settings settings) {
-        boolean isAbsolute = settings.getBoolean(AndroidLintPlugin.ANDROID_LINT_REPORT_ABSOLUTE_PATH);
-        String path = settings.getString(AndroidLintPlugin.ANDROID_LINT_REPORT);
-        if (isAbsolute) {
-            return new File(path);
-        } else {
-            return new File(fileSystem.baseDir(), path);
-        }
     }
 
     @Override
@@ -104,5 +95,17 @@ public class AndroidLintSensor implements Sensor {
     @Override
     public String toString() {
         return AndroidLintSensor.class.getSimpleName();
+    }
+
+    private File getFile(String path) {
+        File file = new File(path);
+        if (!file.isAbsolute()) {
+            try {
+                file = new File(fileSystem.baseDir(), path).getCanonicalFile();
+            } catch (IOException e) {
+                throw new IllegalStateException("Unable to resolve path \'" + path + "\'", e);
+            }
+        }
+        return file;
     }
 }

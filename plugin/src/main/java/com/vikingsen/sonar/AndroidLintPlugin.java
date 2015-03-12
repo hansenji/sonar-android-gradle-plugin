@@ -18,8 +18,6 @@ public final class AndroidLintPlugin extends SonarPlugin {
 
     public static final String ANDROID_LINT_REPORT = "sonar.androidLintReport";
     public static final String ANDROID_LINT_REPORT_DEFAULT = "build/outputs/lint-results.xml";
-    public static final String ANDROID_LINT_REPORT_ABSOLUTE_PATH = "sonar.androidLintReportAbsolutePath";
-    public static final boolean ANDROID_LINT_REPORT_ABSOLUTE_PATH_DEFAULT = false;
 
     // This is where you're going to declare all your Sonar extensions
     public List getExtensions() {
@@ -32,16 +30,6 @@ public final class AndroidLintPlugin extends SonarPlugin {
                         .name("Lint Report Path")
                         .description("Path to the lint xml report.")
                         .type(PropertyType.STRING)
-                        .onQualifiers(Qualifiers.PROJECT)
-                        .build(),
-
-                PropertyDefinition.builder(ANDROID_LINT_REPORT_ABSOLUTE_PATH)
-                        .defaultValue(String.valueOf(ANDROID_LINT_REPORT_ABSOLUTE_PATH_DEFAULT))
-                        .category(ANDROID_LINT_CATEGORY)
-                        .subCategory(GENERAL_SUBCATEGORY)
-                        .name("Lint Report Path Is Absolute")
-                        .description("Whether the lint report path is absolute.")
-                        .type(PropertyType.BOOLEAN)
                         .onQualifiers(Qualifiers.PROJECT)
                         .build(),
 
