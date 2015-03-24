@@ -7,13 +7,13 @@
     <parent>
         <groupId>com.vikingsen</groupId>
         <artifactId>sonar-android-lint-plugin-parent</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>sonar-android-lint-plugin</artifactId>
     <packaging>sonar-plugin</packaging>
 
-    <name>Sonar Android Gradle Plugin</name>
+    <name>Sonar Android Lint Plugin</name>
     <description>Collect results from AndroidLint and add them to Sonar.</description>
 
     <dependencies>
